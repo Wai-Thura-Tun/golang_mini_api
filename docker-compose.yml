@@ -1,0 +1,25 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${APP_PORT}:3000"
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USERNAME}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
