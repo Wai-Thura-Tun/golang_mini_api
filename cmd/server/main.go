@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/Wai-Thura-Tun/golang_book_api/interval/config"
-	"github.com/Wai-Thura-Tun/golang_book_api/interval/database"
+	"github.com/Wai-Thura-Tun/golang_book_api/internal/config"
+	"github.com/Wai-Thura-Tun/golang_book_api/internal/database"
+	"github.com/Wai-Thura-Tun/golang_book_api/internal/routes"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -32,11 +33,6 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Run database migrations
-	if err := database.RunMigrations(config.Database_URL, dbConn); err != nil {
-		log.Fatal("Failed to run database migrations:", err)
-	}
-
 	app := fiber.New(fiber.Config{
 		AppName: "BooK API",
 	})
@@ -44,6 +40,8 @@ func main() {
 	app.Get("/test", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, Golang!")
 	})
+
+	routes.SetUpRoutes(app, config, dbConn)
 
 	log.Fatal(app.Listen(":3000"))
 }

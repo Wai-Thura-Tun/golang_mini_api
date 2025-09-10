@@ -31,3 +31,5 @@ go.work.sum
 # Docker-related files
 docker-volumes/
 mysql-data/
+
+init.sql
