@@ -15,11 +15,17 @@ func SetUpAuthRoutes(router fiber.Router, config *config.Config, db *database.DB
 	authService := services.NewAuthService(authRepo)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	authRouter := router.Group("/auth")
+
 	// Public routes
-	router.Post("/register", authHandler.Register)
-	router.Post("/login", nil)
-	router.Post("/refresh", nil)
+	authRouter.Post("/register", authHandler.Register)
+	authRouter.Post("/login", func(c *fiber.Ctx) error {
+		return authHandler.Login(c, config)
+	})
+	authRouter.Post("/refresh", func(c *fiber.Ctx) error {
+		return authHandler.Refresh(c, config)
+	})
 
 	// Protected route
-	router.Post("/logout", middlewares.Auth(config.JWTSecret, db))
+	authRouter.Get("/logout", middlewares.Auth(config.JWTSecret, db), authHandler.Logout)
 }

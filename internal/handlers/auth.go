@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"fmt"
-
+	"github.com/Wai-Thura-Tun/golang_book_api/internal/config"
 	"github.com/Wai-Thura-Tun/golang_book_api/internal/dto"
 	"github.com/Wai-Thura-Tun/golang_book_api/internal/services"
 	"github.com/Wai-Thura-Tun/golang_book_api/internal/util"
@@ -19,29 +18,63 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	}
 }
 
-func (h *AuthHandler) Login(c *fiber.Ctx) error {
-	return nil
+func (h *AuthHandler) Login(c *fiber.Ctx, config *config.Config) error {
+	var req dto.LoginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":  "Invalid request payload",
+			"detail": err.Error(),
+		})
+	}
+	if err := util.Validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":             "Validation Errors",
+			"validation_errors": util.ValidationErrorsToMap(err),
+		})
+	}
+	response := h.service.Login(c, &req, config.JWTSecret)
+	return c.Status(response.Code).JSON(response.Obj)
 }
 
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req dto.RegisterRequest
+
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err,
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":  "Invalid request payload",
+			"detail": err.Error(),
 		})
 	}
 	if err := util.Validate.Struct(req); err != nil {
-		fmt.Print(err)
-		return c.SendString("")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":             "Validation Errors",
+			"validation_errors": util.ValidationErrorsToMap(err),
+		})
 	}
-
-	return h.service.CreateUser(c.Context(), req)
+	response := h.service.CreateUser(c, &req)
+	return c.Status(response.Code).JSON(response.Obj)
 }
 
-func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
-	return nil
+func (h *AuthHandler) Refresh(c *fiber.Ctx, config *config.Config) error {
+	var req dto.RefreshRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":  "Invalid request payload",
+			"detail": err.Error(),
+		})
+	}
+	if err := util.Validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":             "Validation Errors",
+			"validation_errors": util.ValidationErrorsToMap(err),
+		})
+	}
+	response := h.service.RefreshAccessToken(c, &req, config.JWTSecret)
+	return c.Status(response.Code).JSON(response.Obj)
 }
 
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
-	return nil
+	userID := c.Locals("user_id").(uint64)
+	response := h.service.Logout(c, userID)
+	return c.Status(response.Code).JSON(response.Obj)
 }

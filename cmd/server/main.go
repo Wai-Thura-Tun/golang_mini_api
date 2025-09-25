@@ -8,6 +8,7 @@ import (
 	"github.com/Wai-Thura-Tun/golang_book_api/internal/database"
 	"github.com/Wai-Thura-Tun/golang_book_api/internal/routes"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func main() {
@@ -36,6 +37,8 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "BooK API",
 	})
+
+	app.Use(recover.New())
 
 	app.Get("/test", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, Golang!")

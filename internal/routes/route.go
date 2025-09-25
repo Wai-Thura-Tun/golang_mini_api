@@ -11,7 +11,8 @@ func SetUpRoutes(app *fiber.App, config *config.Config, db *database.DB) {
 
 	v1 := api.Group("/v1")
 
-	auth := v1.Group("/auth")
-
-	SetUpAuthRoutes(auth, config, db)
+	SetUpAuthRoutes(v1, config, db)
+	SetupAuthorRoutes(v1, config, db)
+	SetupCategoryRoutes(v1, config, db)
+	SetupBookRoutes(v1, config, db)
 }

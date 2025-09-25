@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -34,13 +35,20 @@ func Auth(secret string, db *database.DB) fiber.Handler {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			if userID, ok := claims["user_id"].(float64); ok {
-				isExist, err := db.CheckUserExists(uint(userID))
+			if userIDStr, ok := claims["user_id"].(string); ok {
+				userID, err := strconv.ParseUint(userIDStr, 10, 64)
+				if err != nil {
+					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+						"error": "Something went wrong",
+					})
+				}
+				isExist, err := db.CheckUserExists(userID)
 				if err != nil || !isExist {
 					return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 						"error": "User does not exist",
 					})
 				}
+				c.Locals("user_id", userID)
 			} else {
 				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 					"error": "Invalid user id in token claims",
@@ -65,7 +73,6 @@ func Auth(secret string, db *database.DB) fiber.Handler {
 				"error": "Invalid token claims",
 			})
 		}
-
 		return c.Next()
 	}
 }

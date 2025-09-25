@@ -59,7 +59,7 @@ func (db *DB) Close() error {
 	return db.conn.Close()
 }
 
-func (db *DB) CheckUserExists(userID uint) (bool, error) {
+func (db *DB) CheckUserExists(userID uint64) (bool, error) {
 	row := db.conn.QueryRow("select 1 from users where id = ? limit 1", userID)
 	var exists int
 	err := row.Scan(&exists)
