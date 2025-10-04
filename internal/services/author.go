@@ -16,18 +16,18 @@ func NewAuthorService(repo *repos.AuthorRepo) *AuthorService {
 
 func (service *AuthorService) RegisterAuthor(ctx *fiber.Ctx, req *dto.AuthorRegisterRequest) *dto.Response {
 	resp := &dto.Response{
-		Obj: make(map[string]string),
+		Obj: make(map[string]interface{}),
 	}
 	err := service.repo.RegisterAuthor(ctx.Context(), req.Name, req.Biography)
 	if err != nil {
 		resp.Code = fiber.StatusInternalServerError
-		resp.Obj = map[string]string{
+		resp.Obj = map[string]interface{}{
 			"error": "Something went wrong",
 		}
 		return resp
 	}
 	resp.Code = fiber.StatusCreated
-	resp.Obj = map[string]string{
+	resp.Obj = map[string]interface{}{
 		"message": "Author has been created",
 	}
 	return resp

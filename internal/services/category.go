@@ -18,18 +18,18 @@ func NewCategoryService(repo *repos.CategoryRepo) *CategoryService {
 
 func (service *CategoryService) RegisterCategory(ctx *fiber.Ctx, req *dto.CategoryRegisterRequest) *dto.Response {
 	resp := &dto.Response{
-		Obj: make(map[string]string),
+		Obj: make(map[string]interface{}),
 	}
 	err := service.repo.RegisterCategory(ctx.Context(), req)
 	if err != nil {
 		resp.Code = fiber.StatusInternalServerError
-		resp.Obj = map[string]string{
+		resp.Obj = map[string]interface{}{
 			"error": "Something went wrong",
 		}
 		return resp
 	}
 	resp.Code = fiber.StatusCreated
-	resp.Obj = map[string]string{
+	resp.Obj = map[string]interface{}{
 		"message": "Category has been created.",
 	}
 	return resp

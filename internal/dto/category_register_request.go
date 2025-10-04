@@ -1,5 +1,5 @@
 package dto
 
 type CategoryRegisterRequest struct {
-	Name string
+	Name string `json:"name" validate:"required"`
 }
